@@ -1,21 +1,21 @@
-const { v4: uuidv4 } = require("uuid");
+import { v4 as uuidv4 } from "uuid";
 
-const tasks = [];
+let tasks = [];
 
-module.exports.GET_RESPONSE = (req, res) => {
+const GET_RESPONSE = (req, res) => {
   res.status(200).json({ response: "heyooooo" });
 };
 
-module.exports.GET_HEAD_OR_TAILS = (req, res) => {
+const GET_HEAD_OR_TAILS = (req, res) => {
   const response = Math.random() > 0.5 ? "Heads" : "Tails";
   res.status(200).json({ response: response });
 };
 
-module.exports.GENERATE_ID = (req, res) => {
+const GENERATE_ID = (req, res) => {
   return res.status(200).json({ id: uuidv4() });
 };
 
-module.exports.INSERT_TASK = (req, res) => {
+const INSERT_TASK = (req, res) => {
   const task = {
     id: uuidv4(),
     title: req.body.title,
@@ -37,7 +37,7 @@ module.exports.INSERT_TASK = (req, res) => {
     .json({ response: "task was inserted successfully", task: task });
 };
 
-module.exports.GET_ALL_TASKS = (req, res) => {
+const GET_ALL_TASKS = (req, res) => {
   if (tasks.length > 0) {
     const sortedTasks = [...tasks].sort((a, b) => b.points - a.points);
 
@@ -46,7 +46,7 @@ module.exports.GET_ALL_TASKS = (req, res) => {
   return res.status(200).json({ message: "tasks not exist" });
 };
 
-module.exports.GET_TASK_BY_ID = (req, res) => {
+const GET_TASK_BY_ID = (req, res) => {
   const task = tasks.find((t) => t.id === req.params.id);
 
   if (!task) {
@@ -54,4 +54,29 @@ module.exports.GET_TASK_BY_ID = (req, res) => {
   }
 
   return res.status(200).json({ task: task });
+};
+
+const DELETE_TASK_BY_ID = (req, res) => {
+  const task = tasks.find((t) => t.id === req.params.id);
+
+  if (!task) {
+    return res
+      .status(404)
+      .json({ response: `task with ${req.params.id} does not exist` });
+  }
+
+  const filteredTasks = tasks.filter((t) => t.id !== req.params.id);
+  tasks = filteredTasks;
+
+  return res.status(200).json({ response: "task was deleted" });
+};
+
+export {
+  GET_RESPONSE,
+  GET_HEAD_OR_TAILS,
+  GENERATE_ID,
+  INSERT_TASK,
+  GET_ALL_TASKS,
+  GET_TASK_BY_ID,
+  DELETE_TASK_BY_ID,
 };

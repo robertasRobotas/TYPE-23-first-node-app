@@ -1,26 +1,26 @@
-const express = require("express");
+import express from "express";
 
-const {
-  GET_RESPONSE,
-  GET_HEAD_OR_TAILS,
-  GENERATE_ID,
+import {
+  // GET_RESPONSE,
+  // GET_HEAD_OR_TAILS,
+  // GENERATE_ID,
   INSERT_TASK,
   GET_ALL_TASKS,
   GET_TASK_BY_ID,
-} = require("../controller/task");
+  DELETE_TASK_BY_ID,
+} from "../controller/task.js";
 
 const router = express.Router();
 
-router.get("/getResponse", GET_RESPONSE);
+// router.get("/getResponse", GET_RESPONSE);
 
-router.get("/getHeadsOrTails", GET_HEAD_OR_TAILS);
+// router.get("/getHeadsOrTails", GET_HEAD_OR_TAILS);
 
-router.get("/generateId", GENERATE_ID);
+// router.get("/generateId", GENERATE_ID);
 
-router.post("/insertTask", INSERT_TASK);
+router.post("/tasks", INSERT_TASK);
+router.get("/tasks", GET_ALL_TASKS);
+router.get("/tasks/:id", GET_TASK_BY_ID);
+router.delete("/tasks/:id", DELETE_TASK_BY_ID);
 
-router.get("/getAllTasks", GET_ALL_TASKS);
-
-router.get("/getTaskById/:id", GET_TASK_BY_ID);
-
-module.exports = router;
+export default router;
