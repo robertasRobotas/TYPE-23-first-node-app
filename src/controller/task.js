@@ -1,46 +1,62 @@
 import { v4 as uuidv4 } from "uuid";
+import TaskModel from "../model/task.js";
 
 let tasks = [];
 
-const INSERT_TASK = (req, res) => {
-  const task = {
-    id: uuidv4(),
-    title: req.body.title,
-    points: req.body.points,
-    status: false,
-    date: new Date(),
-  };
+const INSERT_TASK = async (req, res) => {
+  try {
+    const newTask = {
+      id: uuidv4(),
+      title: req.body.title,
+      points: req.body.points,
+      status: false,
+      date: new Date(),
+    };
 
-  const isTitleExists = tasks.some((task) => task.title === req.body.title);
+    const isTitleExists = tasks.some((task) => task.title === req.body.title);
 
-  if (isTitleExists) {
-    return res.status(409).json({ message: "this task already exist" });
+    if (isTitleExists) {
+      return res.status(409).json({ message: "this task already exist" });
+    }
+
+    const task = new TaskModel(newTask);
+
+    const response = await task.save();
+
+    return res
+      .status(201)
+      .json({ response: "task was inserted successfully", task: response });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "we have some problems" });
   }
-
-  tasks.push(task);
-
-  return res
-    .status(201)
-    .json({ response: "task was inserted successfully", task: task });
 };
 
-const GET_ALL_TASKS = (req, res) => {
-  if (tasks.length > 0) {
-    const sortedTasks = [...tasks].sort((a, b) => b.points - a.points);
-
-    return res.status(200).json({ tasks: sortedTasks });
+const GET_ALL_TASKS = async (req, res) => {
+  try {
+    const tasks = await TaskModel.find();
+    return res.status(200).json({ tasks: tasks });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "we have some problems" });
   }
-  return res.status(200).json({ message: "tasks not exist" });
 };
 
-const GET_TASK_BY_ID = (req, res) => {
-  const task = tasks.find((t) => t.id === req.params.id);
+const GET_TASK_BY_ID = async (req, res) => {
+  try {
+    const task = await TaskModel.findOne({ id: req.params.id });
 
-  if (!task) {
-    return res.status(404).json({ message: "tasks not exist" });
+    if (!task) {
+      return res
+        .status(404)
+        .json({ message: `no task with id ${req.params.id}` });
+    }
+
+    return res.status(200).json({ task: task });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "we have some problems" });
   }
-
-  return res.status(200).json({ task: task });
 };
 
 const UPDATE_TASK_BY_ID = (req, res) => {
