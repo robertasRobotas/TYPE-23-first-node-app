@@ -59,33 +59,38 @@ const GET_TASK_BY_ID = async (req, res) => {
   }
 };
 
-const UPDATE_TASK_BY_ID = (req, res) => {
-  const task = tasks.find((t) => t.id === req.params.id);
+const UPDATE_TASK_BY_ID = async (req, res) => {
+  try {
+    const task = await TaskModel.findOneAndUpdate(
+      { id: req.params.id },
+      { ...req.body },
+      { new: true }
+    );
 
-  if (!task) {
-    return res.status(404).json({ message: "tasks not exist" });
+    return res.status(200).json({ message: "Task was updated", task: task });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "we have some problems" });
   }
-
-  const index = tasks.findIndex((t) => t.id === req.params.id);
-
-  tasks[index] = { ...tasks[index], ...req.body };
-
-  return res.status(200).json({ message: "Task was updated" });
 };
 
-const DELETE_TASK_BY_ID = (req, res) => {
-  const task = tasks.find((t) => t.id === req.params.id);
+const DELETE_TASK_BY_ID = async (req, res) => {
+  try {
+    const response = await TaskModel.findOneAndDelete({ id: req.params.id });
 
-  if (!task) {
+    if (!response) {
+      return res
+        .status(404)
+        .json({ message: `Task with ${req.params.id}  does not exist` });
+    }
+
     return res
-      .status(404)
-      .json({ response: `task with ${req.params.id} does not exist` });
+      .status(200)
+      .json({ response: "task was deleted", task: response });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "we have some problems" });
   }
-
-  const filteredTasks = tasks.filter((t) => t.id !== req.params.id);
-  tasks = filteredTasks;
-
-  return res.status(200).json({ response: "task was deleted" });
 };
 
 export {
