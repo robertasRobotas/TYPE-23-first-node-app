@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import "dotenv/config";
-
+import userRouter from "./src/route/user.js";
 import taskRouter from "./src/route/task.js";
 const app = express();
 
@@ -17,6 +17,7 @@ mongoose
     console.log("bad connection");
   });
 
+app.use(userRouter);
 app.use(taskRouter);
 
 app.use((req, res) => {
