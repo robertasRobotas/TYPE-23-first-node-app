@@ -1,4 +1,5 @@
 import express from "express";
+import auth from "../middleware/auth.js";
 
 import {
   INSERT_TASK,
@@ -10,10 +11,10 @@ import {
 
 const router = express.Router();
 
-router.post("/tasks", INSERT_TASK);
-router.get("/tasks", GET_ALL_TASKS);
-router.get("/tasks/:id", GET_TASK_BY_ID);
-router.put("/tasks/:id", UPDATE_TASK_BY_ID);
-router.delete("/tasks/:id", DELETE_TASK_BY_ID);
+router.post("/tasks", auth, INSERT_TASK);
+router.get("/tasks", auth, GET_ALL_TASKS);
+router.get("/tasks/:id", auth, GET_TASK_BY_ID);
+router.put("/tasks/:id", auth, UPDATE_TASK_BY_ID);
+router.delete("/tasks/:id", auth, DELETE_TASK_BY_ID);
 
 export default router;
