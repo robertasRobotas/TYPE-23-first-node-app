@@ -6,6 +6,7 @@ const taskSchema = mongoose.Schema({
   points: { type: Number, required: true },
   status: { type: Boolean, required: true },
   date: { type: Date, required: true },
+  userId: { type: String, required: true },
 });
 
 export default mongoose.model("Task", taskSchema);

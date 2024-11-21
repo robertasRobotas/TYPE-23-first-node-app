@@ -11,6 +11,7 @@ const INSERT_TASK = async (req, res) => {
       points: req.body.points,
       status: false,
       date: new Date(),
+      userId: req.body.userId,
     };
 
     const isTitleExists = tasks.some((task) => task.title === req.body.title);
@@ -34,7 +35,7 @@ const INSERT_TASK = async (req, res) => {
 
 const GET_ALL_TASKS = async (req, res) => {
   try {
-    const tasks = await TaskModel.find();
+    const tasks = await TaskModel.find({ userId: req.body.userId });
     return res.status(200).json({ tasks: tasks });
   } catch (err) {
     console.log(err);
@@ -45,6 +46,12 @@ const GET_ALL_TASKS = async (req, res) => {
 const GET_TASK_BY_ID = async (req, res) => {
   try {
     const task = await TaskModel.findOne({ id: req.params.id });
+
+    if (task.userId !== req.body.userId) {
+      return res
+        .status(403)
+        .json({ message: "This resourse does not belong to you" });
+    }
 
     if (!task) {
       return res
@@ -61,13 +68,23 @@ const GET_TASK_BY_ID = async (req, res) => {
 
 const UPDATE_TASK_BY_ID = async (req, res) => {
   try {
-    const task = await TaskModel.findOneAndUpdate(
+    const task = await TaskModel.findOne({ id: req.params.id });
+
+    if (task.userId !== req.body.userId) {
+      return res
+        .status(403)
+        .json({ message: "This resourse does not belong to you" });
+    }
+
+    const updatedTask = await TaskModel.findOneAndUpdate(
       { id: req.params.id },
       { ...req.body },
       { new: true }
     );
 
-    return res.status(200).json({ message: "Task was updated", task: task });
+    return res
+      .status(200)
+      .json({ message: "Task was updated", task: updatedTask });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "we have some problems" });
@@ -76,13 +93,21 @@ const UPDATE_TASK_BY_ID = async (req, res) => {
 
 const DELETE_TASK_BY_ID = async (req, res) => {
   try {
-    const response = await TaskModel.findOneAndDelete({ id: req.params.id });
+    const task = await TaskModel.findOne({ id: req.params.id });
 
-    if (!response) {
+    if (task.userId !== req.body.userId) {
+      return res
+        .status(403)
+        .json({ message: "This resourse does not belong to you" });
+    }
+
+    if (!task) {
       return res
         .status(404)
         .json({ message: `Task with ${req.params.id}  does not exist` });
     }
+
+    const response = await TaskModel.findOneAndDelete({ id: req.params.id });
 
     return res
       .status(200)
