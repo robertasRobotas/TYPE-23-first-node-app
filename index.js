@@ -13,8 +13,8 @@ app.use(express.json());
 mongoose
   .connect(process.env.MONGO_CONNECTION)
   .then(() => console.log("Connected!"))
-  .catch(() => {
-    console.log("bad connection");
+  .catch((err) => {
+    console.log(err);
   });
 
 app.use(userRouter);
